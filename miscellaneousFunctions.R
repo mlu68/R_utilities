@@ -34,3 +34,38 @@ NaReplace <- function(x,valnew){
     
     return(x)
 }
+
+####################################################################################
+## Lag function
+lagpad <- function(x, k=1) {
+  i<-is.vector(x)
+  if(is.vector(x)) x<-matrix(x) else x<-matrix(x,nrow(x))
+  if(k>0) {
+    x <- rbind(matrix(rep(NA, k*ncol(x)),ncol=ncol(x)), matrix(x[1:(nrow(x)-k),], ncol=ncol(x)))
+  }
+  else {
+    x <- rbind(matrix(x[(-k+1):(nrow(x)),], ncol=ncol(x)),matrix(rep(NA, -k*ncol(x)),ncol=ncol(x)))
+  }
+  if(i) x[1:length(x)] else x
+}
+
+####################################################################################
+## Last observation moved forward function for NA replacement
+na.lomf <- function(x) {
+  
+  na.lomf.0 <- function(x) {
+    non.na.idx <- which(!is.na(x))
+    if (is.na(x[1L])) {
+      non.na.idx <- c(1L, non.na.idx)
+    }
+    rep.int(x[non.na.idx], diff(c(non.na.idx, length(x) + 1L)))
+  }
+  
+  dim.len <- length(dim(x))
+  
+  if (dim.len == 0L) {
+    na.lomf.0(x)
+  } else {
+    apply(x, dim.len, na.lomf.0)
+  }
+}
